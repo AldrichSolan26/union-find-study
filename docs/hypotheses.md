@@ -63,3 +63,29 @@ naive+none on `chain` then looks like the fastest variant. (One quick check
 during development already showed this at n ≤ 2^14. The study repeats it
 properly.) If this holds, the sink is necessary and the main results are only
 valid with it.
+
+## Added after the first full run started (not pre-registered)
+
+**H8. Replaying one short sequence lets the branch predictor learn it.** The
+first full run timed every rep on the same op sequence. In its small-n results,
+ns/op roughly tripled between n = 2^10 and 2^12, although both sizes fit in
+L1. A side test showed that rank+full at n = 2^10 costs 3.8 ns/op on a replayed
+sequence but 17.9 ns/op on a fresh sequence of the same workload. The run was
+stopped and the harness changed to use a fresh sequence per rep (see
+`SequencePool` in `bench/bench.cpp`). The prediction for the re-run: with
+`--replay-same-sequence`, small n looks several times faster, and the
+difference disappears once one sequence is longer than the predictor can
+remember (around n = 2^14).
+
+**H9. Windows power throttling made results depend on variant order.** While
+checking H8, rank+full at n = 2^15 measured ~21 ns/op in one configuration
+and ~38 ns/op in another. The only real difference was how long naive+none
+(which is measured first) had run beforehand. A side test showed that after
+~5 s of sustained load, Windows 11 power throttling (EcoQoS) clocked the
+pinned core down and kept it there: 18 → 42 ns/op, and it did not recover
+after a 3 s pause. With the process opted out
+(`SetProcessInformation(ProcessPowerThrottling)`), it stayed at 18–20 ns/op.
+The second full run was stopped and the opt-out added to `uf_bench`. The
+prediction for the re-run: with `--allow-power-throttling`, measuring
+naive+none first makes every later variant at n = 2^15 about 2× slower, and
+with the opt-out the order makes no difference.

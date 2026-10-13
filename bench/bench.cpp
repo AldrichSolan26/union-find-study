@@ -1,21 +1,26 @@
 // bench.cpp — timing harness for all 12 Union-Find variants.
 //
 // For each (workload, n, seed, variant):
-//   1. one COUNTING run (CountStats): parent-array reads/writes, path lengths
-//      and the final forest shape. Untimed. These numbers are deterministic.
+//   1. one COUNTING run (CountStats) on the canonical sequence for that seed:
+//      parent-array reads/writes, path lengths and the final forest shape.
+//      Untimed. These numbers are deterministic.
 //   2. one untimed warm-up run;
 //   3. timed runs on a freshly constructed structure (construction is not
 //      timed) until at least --min-reps runs AND --min-time-ms of timed work,
 //      or --max-reps runs. Median, quartiles and minimum are reported.
+//      For short sequences each timed run gets its own freshly generated
+//      sequence of the same workload (see SequencePool below).
 //
-// Every run returns a checksum (see harness.hpp). All variants, the counting
-// run and every timed run must agree; otherwise the harness prints
+// Every run returns a checksum (see harness.hpp). All variants must agree on
+// the canonical sequence, and every timed run must match a reference
+// variant's answer for its sequence; otherwise the harness prints
 // CHECKSUM MISMATCH and exits non-zero.
 //
 // Usage:
 //   uf_bench [--workload all|NAME[,NAME...]] [--min-exp 10] [--max-exp 20]
 //            [--slow-max-exp 15] [--seeds 1[,2,...]] [--min-reps 5]
 //            [--max-reps 51] [--min-time-ms 50] [--cpu N] [--no-count]
+//            [--replay-same-sequence] [--allow-power-throttling]
 //            [--out results/results.csv] [--build-info]
 //
 // --slow-max-exp caps ONLY naive+none, which is O(n) per find on chain-like
@@ -59,6 +64,8 @@ struct Config {
     double min_time_ms = 50.0;
     int cpu = -1;
     bool count = true;
+    bool replay = false;      // validity experiment: time one sequence over and over
+    bool allow_throttling = false;  // validity experiment: leave Windows power throttling on
     bool build_info = false;
     std::string out = "results/results.csv";
 };
@@ -84,6 +91,23 @@ int parse_int(const char* s, const char* flag) {
     const long v = std::strtol(s, &end, 10);
     if (*s == '\0' || *end != '\0') usage_error(std::string("bad integer for ") + flag + ": " + s);
     return static_cast<int>(v);
+}
+
+// Windows 11 "power throttling" (EcoQoS) clocks down a busy process that has
+// no foreground window. On the study machine it kicked in after a few seconds
+// of sustained load and made every later measurement ~2x slower, so variant
+// ORDER changed the results (see results/FINDINGS.md, "validity checks").
+// Opting out keeps the core at its normal clocks for the whole run.
+bool disable_power_throttling() {
+#if defined(_WIN32) && defined(PROCESS_POWER_THROTTLING_CURRENT_VERSION)
+    PROCESS_POWER_THROTTLING_STATE st{};
+    st.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION;
+    st.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+    st.StateMask = 0;   // take control of execution-speed throttling, and turn it off
+    return SetProcessInformation(GetCurrentProcess(), ProcessPowerThrottling, &st, sizeof st) != 0;
+#else
+    return false;
+#endif
 }
 
 // Data/unified caches seen by one logical CPU, printed as
@@ -155,6 +179,9 @@ void print_build_info(int cpu) {
         best = std::min(best, std::chrono::duration<double, std::nano>(t1 - t0).count());
     }
     std::printf("steady_clock resolution: ~%.0f ns\n", best);
+#if defined(_WIN32)
+    std::printf("windows power throttling: %s\n", disable_power_throttling() ? "disabled for this process" : "COULD NOT DISABLE");
+#endif
     print_caches(cpu);
 }
 
@@ -177,6 +204,8 @@ Config parse_args(int argc, char** argv) {
         else if (arg == "--min-time-ms") c.min_time_ms = parse_int(next(), "--min-time-ms");
         else if (arg == "--cpu") c.cpu = parse_int(next(), "--cpu");
         else if (arg == "--no-count") c.count = false;
+        else if (arg == "--replay-same-sequence") c.replay = true;
+        else if (arg == "--allow-power-throttling") c.allow_throttling = true;
         else if (arg == "--out") c.out = next();
         else if (arg == "--seeds") {
             c.seeds.clear();
@@ -185,7 +214,8 @@ Config parse_args(int argc, char** argv) {
         else if (arg == "--help") {
             std::puts("uf_bench [--workload all|NAME[,NAME...]] [--min-exp N] [--max-exp N]\n"
                       "         [--slow-max-exp N] [--seeds S1,S2,...] [--min-reps N] [--max-reps N]\n"
-                      "         [--min-time-ms N] [--cpu N] [--no-count] [--out FILE] [--build-info]\n"
+                      "         [--min-time-ms N] [--cpu N] [--no-count] [--replay-same-sequence]\n"
+                      "         [--allow-power-throttling] [--out FILE] [--build-info]\n"
                       "workloads: random chain binomial local local-shuffled kruskal");
             std::exit(0);
         } else usage_error("unknown argument: " + arg);
@@ -243,10 +273,52 @@ void pin_to_cpu(int cpu) {
 
 using Clock = std::chrono::steady_clock;
 
+// The sequences the timed runs use. Replaying ONE short sequence rep after rep
+// lets the branch predictor memorise its outcomes: at n = 2^10 that made
+// rank+full look 4.7x faster than on an unseen sequence of the same kind (see
+// results/FINDINGS.md, "validity checks"). So while one sequence is short,
+// every rep gets its own independently generated sequence, with a separate
+// one for the warm-up, until the pool covers kPoolOps operations. Above that
+// the predictor cannot hold the history, and the canonical sequence is reused.
+constexpr std::size_t kPoolOps = std::size_t(1) << 18;
+
+struct SequencePool {
+    std::vector<bench::Workload> owned;
+    std::vector<const bench::Workload*> seqs;   // seqs[0] is the warm-up
+    std::vector<std::uint64_t> expect;          // checksum of each sequence
+    std::size_t timed() const { return seqs.size() == 1 ? 1 : seqs.size() - 1; }
+    std::size_t index(int rep) const { return seqs.size() == 1 ? 0 : 1 + rep % (seqs.size() - 1); }
+};
+
+std::uint64_t derived_seed(std::uint64_t seed, std::size_t k) {
+    return seed * 0x9E3779B97F4A7C15ULL + 0x632BE59BD9B4E019ULL * (k + 1);
+}
+
+SequencePool make_pool(const bench::Workload& canonical, int n, std::uint64_t seed, const Config& cfg) {
+    SequencePool pool;
+    const std::size_t len = canonical.is_kruskal() ? canonical.edges.size() : canonical.ops.size();
+    const std::size_t want = cfg.replay ? 1 : std::clamp<std::size_t>(kPoolOps / std::max<std::size_t>(len, 1), 1,
+                                                                    static_cast<std::size_t>(cfg.max_reps));
+    if (want == 1) {
+        pool.seqs.push_back(&canonical);
+    } else {
+        pool.owned.reserve(want + 1);
+        for (std::size_t k = 0; k <= want; ++k)
+            pool.owned.push_back(bench::make_workload(canonical.name, n, derived_seed(seed, k)));
+        for (const auto& w : pool.owned) pool.seqs.push_back(&w);
+    }
+    for (const auto* w : pool.seqs) {      // reference answers, from one fixed variant
+        uf::UnionFind<uf::LinkByRank, uf::FindFull> ref(n);
+        pool.expect.push_back(bench::run_workload(ref, *w).checksum);
+    }
+    return pool;
+}
+
 struct Timing {
-    double median, p25, p75, min;
+    double median, p25, p75, min;   // ns per run
+    double ns_per_op;               // median over runs of (ns / ops in that run)
     int reps;
-    bool consistent;   // every timed run produced the expected checksum
+    bool consistent;                // every timed run produced the expected checksum
 };
 
 double quantile(const std::vector<double>& sorted, double q) {
@@ -257,25 +329,28 @@ double quantile(const std::vector<double>& sorted, double q) {
 }
 
 template <class UF>
-Timing time_variant(const bench::Workload& w, int n, const Config& cfg, std::uint64_t expect) {
+Timing time_variant(const SequencePool& pool, int n, const Config& cfg) {
     bool consistent = true;
-    { UF warm(n); consistent &= bench::run_workload(warm, w).checksum == expect; }
-    std::vector<double> samples;
+    { UF warm(n); consistent &= bench::run_workload(warm, *pool.seqs[0]).checksum == pool.expect[0]; }
+    std::vector<double> samples, per_op;
     double total_ms = 0.0;
     while (static_cast<int>(samples.size()) < cfg.min_reps ||
            (total_ms < cfg.min_time_ms && static_cast<int>(samples.size()) < cfg.max_reps)) {
+        const std::size_t k = pool.index(static_cast<int>(samples.size()));
         UF u(n);                                    // construction: not timed
         const auto t0 = Clock::now();
-        const auto r = bench::run_workload(u, w);
+        const auto r = bench::run_workload(u, *pool.seqs[k]);
         const auto t1 = Clock::now();
-        consistent &= r.checksum == expect;
+        consistent &= r.checksum == pool.expect[k];
         const double ns = std::chrono::duration<double, std::nano>(t1 - t0).count();
         samples.push_back(ns);
+        per_op.push_back(ns / static_cast<double>(r.ops));
         total_ms += ns / 1e6;
     }
     std::sort(samples.begin(), samples.end());
+    std::sort(per_op.begin(), per_op.end());
     return {quantile(samples, 0.5), quantile(samples, 0.25), quantile(samples, 0.75),
-            samples.front(), static_cast<int>(samples.size()), consistent};
+            samples.front(), quantile(per_op, 0.5), static_cast<int>(samples.size()), consistent};
 }
 
 }  // namespace
@@ -289,6 +364,12 @@ int main(int argc, char** argv) {
 #if !defined(NDEBUG) || (defined(__GNUC__) && !defined(__OPTIMIZE__))
     std::fprintf(stderr, "WARNING: unoptimised/debug build; timings are meaningless\n");
 #endif
+#if defined(_WIN32)
+    if (cfg.allow_throttling)
+        std::fprintf(stderr, "note: Windows power throttling left ON (validity experiment)\n");
+    else if (!disable_power_throttling())
+        std::fprintf(stderr, "WARNING: could not disable Windows power throttling; timings may drift\n");
+#endif
     pin_to_cpu(cfg.cpu);
 
     std::FILE* out = std::fopen(cfg.out.c_str(), "w");
@@ -296,7 +377,7 @@ int main(int argc, char** argv) {
         std::fprintf(stderr, "cannot open %s (does the folder exist?)\n", cfg.out.c_str());
         return 1;
     }
-    std::fprintf(out, "workload,variant,link,find,n,seed,ops,reps,median_ns,p25_ns,p75_ns,min_ns,"
+    std::fprintf(out, "workload,variant,link,find,n,seed,ops,reps,sequences,median_ns,p25_ns,p75_ns,min_ns,"
                       "ns_per_op,finds,path_per_find,reads_per_op,writes_per_op,max_depth,"
                       "mean_depth,checksum\n");
 
@@ -307,6 +388,7 @@ int main(int argc, char** argv) {
             const int n = 1 << e;
             for (const std::uint64_t seed : cfg.seeds) {
                 const bench::Workload w = bench::make_workload(wname, n, seed);
+                const SequencePool pool = make_pool(w, n, seed, cfg);
                 std::map<std::string, std::uint64_t> sums;
 
                 uf::for_each_variant([&](auto tag) {
@@ -327,10 +409,10 @@ int main(int argc, char** argv) {
                         if (cfg.count) { st = c.stats(); shape = bench::forest_shape(c.parents()); }
                     }
                     // 2-3. Warm-up and timed runs on the uninstrumented type.
-                    const Timing t = time_variant<UF>(w, n, cfg, checksum);
+                    const Timing t = time_variant<UF>(pool, n, cfg);
                     if (!t.consistent) {
                         ++mismatches;
-                        std::fprintf(stderr, "CHECKSUM MISMATCH (timed vs counted) %s n=%d seed=%llu %s\n",
+                        std::fprintf(stderr, "CHECKSUM MISMATCH (timed run vs reference) %s n=%d seed=%llu %s\n",
                                      wname.c_str(), n, static_cast<unsigned long long>(seed),
                                      UF::variant_name().c_str());
                     }
@@ -338,11 +420,12 @@ int main(int argc, char** argv) {
 
                     const double dops = static_cast<double>(ops);
                     const double finds = static_cast<double>(st.finds);
-                    std::fprintf(out, "%s,%s,%s,%s,%d,%llu,%llu,%d,%.0f,%.0f,%.0f,%.0f,%.4f,",
+                    std::fprintf(out, "%s,%s,%s,%s,%d,%llu,%llu,%d,%zu,%.0f,%.0f,%.0f,%.0f,%.4f,",
                                  wname.c_str(), UF::variant_name().c_str(), UF::link_type::name,
                                  UF::find_type::name, n, static_cast<unsigned long long>(seed),
-                                 static_cast<unsigned long long>(ops), t.reps, t.median, t.p25,
-                                 t.p75, t.min, t.median / dops);
+                                 static_cast<unsigned long long>(ops), t.reps,
+                                 std::min<std::size_t>(pool.timed(), static_cast<std::size_t>(t.reps)),
+                                 t.median, t.p25, t.p75, t.min, t.ns_per_op);
                     if (cfg.count)
                         std::fprintf(out, "%llu,%.4f,%.4f,%.4f,%d,%.4f,",
                                      static_cast<unsigned long long>(st.finds),
