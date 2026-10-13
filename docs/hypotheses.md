@@ -1,0 +1,65 @@
+# Hypotheses
+
+Written and committed **before** the full benchmark run, so the results can be
+checked against them rather than rationalised afterwards. They were informed by
+a smoke run (n ≤ 2^16, one seed) and a pilot at n = 2^22 (random and kruskal
+only), both made while building the harness. Verdicts are in
+[results/FINDINGS.md](../results/FINDINGS.md).
+
+Machine context: Intel Core i9-14900HX, run pinned to one performance core
+with 48 KB L1d, 2 MB L2 and a shared 36 MB L3 (see `results/machine.json`). The
+parent array is 4n bytes. Union-by-rank adds n bytes, union-by-size adds 4n.
+So the main arrays outgrow L2 around n ≈ 2^18–2^19 and L3 around n ≈ 2^22–2^23.
+
+## Theory being tested
+
+| Variant | Worst-case bound for m operations on n elements |
+| --- | --- |
+| naive + none | Θ(n) per find: a chain of length n − 1 is possible |
+| rank/size + none | O(log n) per find: height ≤ log2 n |
+| naive + compression | O(m log_{1+m/n} n) total (Tarjan & van Leeuwen 1984) |
+| rank/size + full / halving / splitting | O(m α(n)) total, and α(n) ≤ 4 for any practical n |
+
+## Predictions
+
+**H1. Work follows the theory.** Measured in parent-array reads per operation
+(machine-independent):
+
+- naive+none on `chain` grows linearly in n;
+- rank/size+none on `binomial` grows like log2 n, with mean path ≈ (log2 n)/2;
+- every rank/size + compression variant is flat in n on every workload;
+- naive + compression grows, but slowly (at most logarithmically).
+
+**H2. Time does not follow the theory.** For rank/size + compression, reads/op
+stay flat but ns/op rises with n, by more than 2× between n = 2^10 and
+n = 2^24. Most of the rise happens where the arrays outgrow L2 and L3. In
+other words, past the caches the cost per operation is set by cache misses,
+not by α(n).
+
+**H3. Locality alone explains a large part of H2.** `local` and
+`local-shuffled` do identical work (the tests check this). Their times are
+within ~10% while the arrays fit in L2, and `local-shuffled` is at least 2×
+slower at n = 2^24.
+
+**H4. The choice of compression matters much less than having some.** Among
+full, halving and splitting with rank/size linking, the spread in ns/op is
+under ~25% at any n, against 2× or more for "compression vs none" on random
+and kruskal at large n. The one-pass methods (halving, splitting) are at least
+as fast as two-pass full compression at large n, because full walks the path
+twice.
+
+**H5. Rank beats size at large n, only because it is smaller.** The two build
+different but similarly shallow forests (similar reads/op), but the rank array
+is 1 byte per element against 4 for size. Prediction: rank+X is faster than
+size+X at n ≥ 2^22, and not meaningfully different at n ≤ 2^16.
+
+**H6. Compression without balanced linking is "good enough" on random inputs
+but not free.** naive + compression does more reads per op than rank +
+compression, and is slower, by less than 3× on `random` at every n.
+
+**H7. Measurement validity.** Building the harness without the `volatile`
+sink (`uf_bench_nosink`) lets the compiler delete side-effect-free finds, and
+naive+none on `chain` then looks like the fastest variant. (One quick check
+during development already showed this at n ≤ 2^14. The study repeats it
+properly.) If this holds, the sink is necessary and the main results are only
+valid with it.
