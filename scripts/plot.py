@@ -501,7 +501,7 @@ def summary(df: pd.DataFrame, agg: pd.DataFrame, validity, machine: dict, out: P
             L.append(f"### {w}, n = 2^{int(np.log2(n))}\n")
             L.append(md_table(t) + "\n")
     text = "\n".join(L)
-    (out / "summary.md").write_text(text, encoding="utf-8")
+    (out / "summary.md").write_text(text, encoding="utf-8", newline="\n")   # LF on every OS
     return text
 
 
