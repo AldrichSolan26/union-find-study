@@ -1,0 +1,11 @@
+time,before,rank_full_random_2e15_ns_per_op
+2026-10-14T02:10:56,random_seed1,21.881
+2026-10-14T02:16:35,random_seed2,23.514
+2026-10-14T02:22:04,random_seed3,20.671
+2026-10-14T02:27:40,chain_seed1,21.234
+2026-10-14T02:30:21,chain_seed2,21.782
+2026-10-14T02:32:49,chain_seed3,20.618
+2026-10-14T02:35:18,binomial_seed1,20.608
+2026-10-14T02:37:07,binomial_seed2,20.822
+2026-10-14T02:38:56,binomial_seed3,20.839
+2026-10-14T02:40:47,local_seed1,21.469

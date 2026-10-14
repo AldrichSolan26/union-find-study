@@ -1,0 +1,19 @@
+### throttling left on
+power throttling left on
+random n=2^15 rank+full, ns/op
+  baseline                 25.1
+  after 5 s pointer chase  43.0
+    again                  42.9
+  after 3 s pause          43.4
+  after 5 s ALU loop       42.9
+  after 3 s pause          42.9
+
+### with the opt-out
+power throttling opt-out: ok
+random n=2^15 rank+full, ns/op
+  baseline                 18.6
+  after 5 s pointer chase  18.7
+    again                  18.6
+  after 3 s pause          19.7
+  after 5 s ALU loop       18.9
+  after 3 s pause          19.3

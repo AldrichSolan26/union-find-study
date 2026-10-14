@@ -1,0 +1,246 @@
+machine: Intel(R) Core(TM) i9-14900HX, caches {'L3': 37748736, 'L1': 49152, 'L2': 2097152}
+canary before random_seed1: 21.88 ns/op
+run --workload random --seeds 1 --out H:\Downloads\union-find-study\union-find-study\results\raw\random_seed1.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.0s] done random         n=2^10 seed=1
+[    0.1s] done random         n=2^11 seed=1
+[    0.3s] done random         n=2^12 seed=1
+[    0.7s] done random         n=2^13 seed=1
+[    1.3s] done random         n=2^14 seed=1
+[    2.9s] done random         n=2^15 seed=1
+[    4.1s] done random         n=2^16 seed=1
+[    5.4s] done random         n=2^17 seed=1
+[    7.0s] done random         n=2^18 seed=1
+[    9.2s] done random         n=2^19 seed=1
+[   13.6s] done random         n=2^20 seed=1
+[   25.0s] done random         n=2^21 seed=1
+[   57.7s] done random         n=2^22 seed=1
+[  143.7s] done random         n=2^23 seed=1
+[  338.2s] done random         n=2^24 seed=1
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\random_seed1.partial (all checksums agree)
+canary before random_seed2: 23.51 ns/op
+run --workload random --seeds 2 --out H:\Downloads\union-find-study\union-find-study\results\raw\random_seed2.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.0s] done random         n=2^10 seed=2
+[    0.1s] done random         n=2^11 seed=2
+[    0.3s] done random         n=2^12 seed=2
+[    0.7s] done random         n=2^13 seed=2
+[    1.4s] done random         n=2^14 seed=2
+[    3.7s] done random         n=2^15 seed=2
+[    4.9s] done random         n=2^16 seed=2
+[    6.3s] done random         n=2^17 seed=2
+[    8.0s] done random         n=2^18 seed=2
+[   10.2s] done random         n=2^19 seed=2
+[   15.0s] done random         n=2^20 seed=2
+[   26.3s] done random         n=2^21 seed=2
+[   58.6s] done random         n=2^22 seed=2
+[  141.3s] done random         n=2^23 seed=2
+[  328.7s] done random         n=2^24 seed=2
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\random_seed2.partial (all checksums agree)
+canary before random_seed3: 20.67 ns/op
+run --workload random --seeds 3 --out H:\Downloads\union-find-study\union-find-study\results\raw\random_seed3.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.0s] done random         n=2^10 seed=3
+[    0.1s] done random         n=2^11 seed=3
+[    0.3s] done random         n=2^12 seed=3
+[    0.7s] done random         n=2^13 seed=3
+[    1.3s] done random         n=2^14 seed=3
+[    3.3s] done random         n=2^15 seed=3
+[    4.5s] done random         n=2^16 seed=3
+[    5.8s] done random         n=2^17 seed=3
+[    7.5s] done random         n=2^18 seed=3
+[    9.8s] done random         n=2^19 seed=3
+[   14.5s] done random         n=2^20 seed=3
+[   25.8s] done random         n=2^21 seed=3
+[   57.3s] done random         n=2^22 seed=3
+[  140.8s] done random         n=2^23 seed=3
+[  335.8s] done random         n=2^24 seed=3
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\random_seed3.partial (all checksums agree)
+canary before chain_seed1: 21.23 ns/op
+run --workload chain --seeds 1 --out H:\Downloads\union-find-study\union-find-study\results\raw\chain_seed1.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.1s] done chain          n=2^10 seed=1
+[    0.2s] done chain          n=2^11 seed=1
+[    0.4s] done chain          n=2^12 seed=1
+[    0.9s] done chain          n=2^13 seed=1
+[    2.7s] done chain          n=2^14 seed=1
+[    9.8s] done chain          n=2^15 seed=1
+[   10.3s] done chain          n=2^16 seed=1
+[   11.2s] done chain          n=2^17 seed=1
+[   12.6s] done chain          n=2^18 seed=1
+[   14.3s] done chain          n=2^19 seed=1
+[   16.7s] done chain          n=2^20 seed=1
+[   21.0s] done chain          n=2^21 seed=1
+[   35.1s] done chain          n=2^22 seed=1
+[   71.9s] done chain          n=2^23 seed=1
+[  160.4s] done chain          n=2^24 seed=1
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\chain_seed1.partial (all checksums agree)
+canary before chain_seed2: 21.78 ns/op
+run --workload chain --seeds 2 --out H:\Downloads\union-find-study\union-find-study\results\raw\chain_seed2.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.1s] done chain          n=2^10 seed=2
+[    0.2s] done chain          n=2^11 seed=2
+[    0.4s] done chain          n=2^12 seed=2
+[    0.9s] done chain          n=2^13 seed=2
+[    2.7s] done chain          n=2^14 seed=2
+[    9.9s] done chain          n=2^15 seed=2
+[   10.4s] done chain          n=2^16 seed=2
+[   11.3s] done chain          n=2^17 seed=2
+[   12.7s] done chain          n=2^18 seed=2
+[   14.3s] done chain          n=2^19 seed=2
+[   16.7s] done chain          n=2^20 seed=2
+[   21.2s] done chain          n=2^21 seed=2
+[   34.2s] done chain          n=2^22 seed=2
+[   68.8s] done chain          n=2^23 seed=2
+[  148.0s] done chain          n=2^24 seed=2
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\chain_seed2.partial (all checksums agree)
+canary before chain_seed3: 20.62 ns/op
+run --workload chain --seeds 3 --out H:\Downloads\union-find-study\union-find-study\results\raw\chain_seed3.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.1s] done chain          n=2^10 seed=3
+[    0.2s] done chain          n=2^11 seed=3
+[    0.4s] done chain          n=2^12 seed=3
+[    0.9s] done chain          n=2^13 seed=3
+[    2.6s] done chain          n=2^14 seed=3
+[    9.1s] done chain          n=2^15 seed=3
+[    9.6s] done chain          n=2^16 seed=3
+[   10.4s] done chain          n=2^17 seed=3
+[   11.9s] done chain          n=2^18 seed=3
+[   13.5s] done chain          n=2^19 seed=3
+[   15.8s] done chain          n=2^20 seed=3
+[   20.0s] done chain          n=2^21 seed=3
+[   33.1s] done chain          n=2^22 seed=3
+[   67.8s] done chain          n=2^23 seed=3
+[  148.4s] done chain          n=2^24 seed=3
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\chain_seed3.partial (all checksums agree)
+canary before binomial_seed1: 20.61 ns/op
+run --workload binomial --seeds 1 --out H:\Downloads\union-find-study\union-find-study\results\raw\binomial_seed1.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.0s] done binomial       n=2^10 seed=1
+[    0.0s] done binomial       n=2^11 seed=1
+[    0.1s] done binomial       n=2^12 seed=1
+[    0.2s] done binomial       n=2^13 seed=1
+[    0.4s] done binomial       n=2^14 seed=1
+[    0.8s] done binomial       n=2^15 seed=1
+[    1.5s] done binomial       n=2^16 seed=1
+[    2.7s] done binomial       n=2^17 seed=1
+[    4.1s] done binomial       n=2^18 seed=1
+[    5.7s] done binomial       n=2^19 seed=1
+[    8.0s] done binomial       n=2^20 seed=1
+[   11.8s] done binomial       n=2^21 seed=1
+[   20.9s] done binomial       n=2^22 seed=1
+[   44.7s] done binomial       n=2^23 seed=1
+[  108.5s] done binomial       n=2^24 seed=1
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\binomial_seed1.partial (all checksums agree)
+canary before binomial_seed2: 20.82 ns/op
+run --workload binomial --seeds 2 --out H:\Downloads\union-find-study\union-find-study\results\raw\binomial_seed2.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.0s] done binomial       n=2^10 seed=2
+[    0.0s] done binomial       n=2^11 seed=2
+[    0.1s] done binomial       n=2^12 seed=2
+[    0.2s] done binomial       n=2^13 seed=2
+[    0.4s] done binomial       n=2^14 seed=2
+[    0.8s] done binomial       n=2^15 seed=2
+[    1.6s] done binomial       n=2^16 seed=2
+[    2.8s] done binomial       n=2^17 seed=2
+[    4.2s] done binomial       n=2^18 seed=2
+[    5.8s] done binomial       n=2^19 seed=2
+[    8.2s] done binomial       n=2^20 seed=2
+[   12.3s] done binomial       n=2^21 seed=2
+[   22.1s] done binomial       n=2^22 seed=2
+[   45.6s] done binomial       n=2^23 seed=2
+[  108.5s] done binomial       n=2^24 seed=2
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\binomial_seed2.partial (all checksums agree)
+canary before binomial_seed3: 20.84 ns/op
+run --workload binomial --seeds 3 --out H:\Downloads\union-find-study\union-find-study\results\raw\binomial_seed3.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.0s] done binomial       n=2^10 seed=3
+[    0.0s] done binomial       n=2^11 seed=3
+[    0.1s] done binomial       n=2^12 seed=3
+[    0.2s] done binomial       n=2^13 seed=3
+[    0.4s] done binomial       n=2^14 seed=3
+[    0.8s] done binomial       n=2^15 seed=3
+[    1.6s] done binomial       n=2^16 seed=3
+[    2.8s] done binomial       n=2^17 seed=3
+[    4.2s] done binomial       n=2^18 seed=3
+[    5.9s] done binomial       n=2^19 seed=3
+[    8.2s] done binomial       n=2^20 seed=3
+[   12.3s] done binomial       n=2^21 seed=3
+[   21.9s] done binomial       n=2^22 seed=3
+[   46.6s] done binomial       n=2^23 seed=3
+[  110.4s] done binomial       n=2^24 seed=3
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\binomial_seed3.partial (all checksums agree)
+canary before local_seed1: 21.47 ns/op
+run --workload local --seeds 1 --out H:\Downloads\union-find-study\union-find-study\results\raw\local_seed1.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.0s] done local          n=2^10 seed=1
+[    0.1s] done local          n=2^11 seed=1
+[    0.2s] done local          n=2^12 seed=1
+[    0.4s] done local          n=2^13 seed=1
+[    0.8s] done local          n=2^14 seed=1
+[    1.6s] done local          n=2^15 seed=1
+[    2.9s] done local          n=2^16 seed=1
+[    4.1s] done local          n=2^17 seed=1
+[    5.7s] done local          n=2^18 seed=1
+[    7.7s] done local          n=2^19 seed=1
+[   10.8s] done local          n=2^20 seed=1
+[   18.1s] done local          n=2^21 seed=1
+[   36.4s] done local          n=2^22 seed=1
+[   79.0s] done local          n=2^23 seed=1
+[  180.2s] done local          n=2^24 seed=1
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\local_seed1.partial (all checksums agree)
+canary before local_seed2: 20.97 ns/op
+run --workload local --seeds 2 --out H:\Downloads\union-find-study\union-find-study\results\raw\local_seed2.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.0s] done local          n=2^10 seed=2
+[    0.1s] done local          n=2^11 seed=2
+[    0.2s] done local          n=2^12 seed=2
+[    0.4s] done local          n=2^13 seed=2
+[    0.8s] done local          n=2^14 seed=2
+[    1.6s] done local          n=2^15 seed=2
+[    2.9s] done local          n=2^16 seed=2
+[    4.2s] done local          n=2^17 seed=2
+[    5.7s] done local          n=2^18 seed=2
+[    7.7s] done local          n=2^19 seed=2
+[   10.8s] done local          n=2^20 seed=2
+[   17.9s] done local          n=2^21 seed=2
+[   35.6s] done local          n=2^22 seed=2
+[50300.3s] done local          n=2^23 seed=2
+[50390.3s] done local          n=2^24 seed=2
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\local_seed2.partial (all checksums agree)
+canary before local_seed3: 26.38 ns/op
+run --workload local --seeds 3 --out H:\Downloads\union-find-study\union-find-study\results\raw\local_seed3.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.0s] done local          n=2^10 seed=3
+[    0.1s] done local          n=2^11 seed=3
+[    0.2s] done local          n=2^12 seed=3
+[    0.4s] done local          n=2^13 seed=3
+[    0.7s] done local          n=2^14 seed=3
+[    1.2s] done local          n=2^15 seed=3
+[    2.3s] done local          n=2^16 seed=3
+[    3.6s] done local          n=2^17 seed=3
+[    5.2s] done local          n=2^18 seed=3
+[    7.3s] done local          n=2^19 seed=3
+[   11.0s] done local          n=2^20 seed=3
+[   19.2s] done local          n=2^21 seed=3
+[   39.7s] done local          n=2^22 seed=3
+[   89.3s] done local          n=2^23 seed=3
+[  206.9s] done local          n=2^24 seed=3
+wrote H:\Downloads\union-find-study\union-find-study\results\raw\local_seed3.partial (all checksums agree)
+canary before local-shuffled_seed1: 26.46 ns/op
+run --workload local-shuffled --seeds 1 --out H:\Downloads\union-find-study\union-find-study\results\raw\local-shuffled_seed1.partial --min-exp 10 --max-exp 24 --slow-max-exp 15 --min-reps 3 --max-reps 51 --min-time-ms 100 --cpu 4
+pinned to logical CPU 4 (efficiency class 1 of max 1: performance core)
+[    0.0s] done local-shuffled n=2^10 seed=1
+[    0.1s] done local-shuffled n=2^11 seed=1
+[    0.2s] done local-shuffled n=2^12 seed=1
+[    0.5s] done local-shuffled n=2^13 seed=1
+[    1.0s] done local-shuffled n=2^14 seed=1
+[    1.9s] done local-shuffled n=2^15 seed=1
+[    3.2s] done local-shuffled n=2^16 seed=1
+[    4.5s] done local-shuffled n=2^17 seed=1
+[    6.1s] done local-shuffled n=2^18 seed=1
+[    8.4s] done local-shuffled n=2^19 seed=1
+[   12.9s] done local-shuffled n=2^20 seed=1
+[   23.1s] done local-shuffled n=2^21 seed=1
+[   50.0s] done local-shuffled n=2^22 seed=1
+[  123.7s] done local-shuffled n=2^23 seed=1

@@ -66,6 +66,14 @@ valid with it.
 
 ## Added after the first full run started (not pre-registered)
 
+> **Note added later.** The side-test numbers quoted in H8 and H9 below came
+> from scratch programs whose timing helper discarded the `run_ops`
+> checksum: the dead-code pitfall of H7, see `docs/ai-log.md`. That mostly
+> affects variants without compression, which these tests did not use. Both
+> effects were then measured properly with `uf_bench` (`results/validity.csv`):
+> H8 is 5.4 vs 19.2 ns/op, and H9 is 2.30–2.35×. The fixed side experiments
+> are in `experiments/`.
+
 **H8. Replaying one short sequence lets the branch predictor learn it.** The
 first full run timed every rep on the same op sequence. In its small-n results,
 ns/op roughly tripled between n = 2^10 and 2^12, although both sizes fit in

@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-14T02:10:54",
+  "os": "Windows-11-10.0.26300-SP0",
+  "machine": "AMD64",
+  "python": "3.13.9",
+  "logical_cpus": 32,
+  "pinned_cpu": 4,
+  "build_info": [
+    "compiler: gcc 16.2.0",
+    "NDEBUG: defined",
+    "optimised: yes",
+    "sink: enabled",
+    "steady_clock resolution: ~100 ns",
+    "windows power throttling: disabled for this process"
+  ],
+  "caches_bytes": {
+    "L3": 37748736,
+    "L1": 49152,
+    "L2": 2097152
+  },
+  "cpu_model": "Intel(R) Core(TM) i9-14900HX",
+  "physical_cores": 24,
+  "ram_gb": 31.7,
+  "power_plan": "Balanced",
+  "study_config": {
+    "min_exp": 10,
+    "max_exp": 24,
+    "slow_max_exp": 15,
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "min_reps": 3,
+    "max_reps": 51,
+    "min_time_ms": 100,
+    "workloads": [
+      "random",
+      "chain",
+      "binomial",
+      "local",
+      "local-shuffled",
+      "kruskal"
+    ],
+    "quick": false
+  },
+  "resumed": [
+    "2026-10-14T20:44:27",
+    "2026-10-14T21:38:02",
+    "2026-10-14T21:55:31",
+    "2026-10-14T22:11:45"
+  ]
+}
