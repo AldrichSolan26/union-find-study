@@ -93,6 +93,18 @@ def bench_args(cfg: dict, cpu: int) -> list:
             "--cpu", str(cpu)]
 
 
+def keep_awake() -> None:
+    """Stop Windows idle-sleeping during the run. The first full run was split
+    by an 11-hour sleep, and the machine came back measurably slower (see
+    results/discarded/README.md). Closing the lid still sleeps the machine;
+    the canary is what catches that."""
+    if os.name == "nt":
+        import ctypes
+        ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
+        if not ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED):
+            print("warning: could not stop the system from sleeping during the run")
+
+
 def canary(bench: Path, cpu: int, tmp: Path) -> float:
     """A fixed small benchmark (random, n = 2^15, rank+full) used as a drift
     monitor: it is re-run between chunks, so any change in machine speed over
@@ -129,6 +141,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--quick", action="store_true", help="small sizes, one seed")
     ap.add_argument("--resume", action="store_true", help="keep chunks already in results/raw/")
+    ap.add_argument("--no-validity", action="store_true", help="skip the validity experiments")
     ap.add_argument("--cpu", type=int, default=4, help="logical CPU to pin to (-1: no pinning)")
     ap.add_argument("--workloads", default=",".join(WORKLOADS))
     ap.add_argument("--out", default=str(ROOT / "results"))
@@ -136,6 +149,7 @@ def main() -> None:
 
     cfg = QUICK if args.quick else FULL
     bench, nosink = find_binary("uf_bench"), find_binary("uf_bench_nosink")
+    keep_awake()
     out = Path(args.out)
     raw = out / "raw"
     if raw.exists() and not args.resume:
@@ -144,6 +158,10 @@ def main() -> None:
 
     info = machine_info(bench, args.cpu)
     info["study_config"] = dict(cfg, workloads=args.workloads.split(","), quick=args.quick)
+    if args.resume and (out / "machine.json").exists():
+        first = json.loads((out / "machine.json").read_text())
+        info["date"] = first.get("date", info["date"])          # when the study started
+        info["resumed"] = first.get("resumed", []) + [dt.datetime.now().isoformat(timespec="seconds")]
     (out / "machine.json").write_text(json.dumps(info, indent=2))
     print(f"machine: {info.get('cpu_model', '?')}, caches {info['caches_bytes']}")
 
@@ -163,6 +181,12 @@ def main() -> None:
             writer.writeheader()
             writer.writerows(canary_rows)
         print(f"canary before {before}: {ns:.2f} ns/op", flush=True)
+        values = sorted(float(r["rank_full_random_2e15_ns_per_op"]) for r in canary_rows)
+        typical = values[len(values) // 2]
+        if abs(ns / typical - 1) > 0.10:
+            print(f"WARNING: canary {ns:.2f} ns/op is {ns / typical - 1:+.0%} from the run's median "
+                  f"({typical:.2f}); the machine state has changed. Check before trusting the next chunk.",
+                  flush=True)
 
     for w in args.workloads.split(","):
         for seed in cfg["seeds"]:
@@ -181,6 +205,8 @@ def main() -> None:
 
     rows = merge(chunks, out / "results.csv")
     print(f"wrote {out / 'results.csv'} ({rows} rows)")
+    if args.no_validity:
+        return
 
     # Validity experiments. H7: the chain benchmark with the volatile sink on
     # vs off. H8: the random benchmark with a fresh sequence per timed rep vs

@@ -30,5 +30,11 @@ add_executable(uf_bench_nosink bench/bench.cpp)
 target_include_directories(uf_bench_nosink PRIVATE include bench)
 target_compile_definitions(uf_bench_nosink PRIVATE UF_BENCH_NO_SINK)
 
+# Side experiments behind H5, H8 and H9 (see experiments/README.md).
+foreach(exp replay_vs_fresh throttling rank_branch)
+  add_executable(${exp} experiments/${exp}.cpp)
+  target_include_directories(${exp} PRIVATE include bench)
+endforeach()
+
 enable_testing()
 add_test(NAME union_find_tests COMMAND uf_tests)

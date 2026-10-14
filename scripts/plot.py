@@ -201,7 +201,7 @@ def time_vs_work_figure(agg: pd.DataFrame, caches: dict, out: Path) -> None:
     ax.axhline(1, color=AXIS, linewidth=0.8)
     for _, row in s.iloc[[-1]].iterrows():
         ax.annotate(f"{row['ns'] / base['ns']:.1f}×", (row["n"], row["ns"] / base["ns"]),
-                    textcoords="offset points", xytext=(-4, 6), ha="right", color=INK2)
+                    textcoords="offset points", xytext=(-6, -10), ha="right", va="top", color=INK2)
     log2_axis(ax)
     ax.set_title(f"random, rank+halving: indexed to n = 2^{int(np.log2(base['n']))}")
     ax.set_ylabel("relative to smallest n (= 1)")
@@ -359,9 +359,13 @@ def summary(df: pd.DataFrame, agg: pd.DataFrame, validity, machine: dict, out: P
     L.append(f"- Within-seed spread (IQR/median of the timed reps): median {within.median():.1%}, "
              f"90th percentile {within.quantile(0.9):.1%}")
     if (out / "canary.csv").exists():
-        c = pd.read_csv(out / "canary.csv")["rank_full_random_2e15_ns_per_op"]
-        L.append(f"- Drift monitor (`canary.csv`, random n = 2^15 rank+full, re-run before each of {len(c) - 1} "
-                 f"chunks and at the end): {c.min():.2f}–{c.max():.2f} ns/op, max/min = {c.max() / c.min():.3f}")
+        canary_df = pd.read_csv(out / "canary.csv")
+        c = canary_df["rank_full_random_2e15_ns_per_op"]
+        chunks = int((canary_df["before"] != "end").sum())
+        L.append(f"- Drift monitor (`canary.csv`: random, n = 2^15, rank+full, run before each of the {chunks} "
+                 f"chunks and at the end of each run, {len(c)} readings): {c.min():.2f}–{c.max():.2f} ns/op, "
+                 f"max/min = {c.max() / c.min():.3f}. It fits in L2, so it detects clock-speed changes but "
+                 f"not memory-bandwidth contention.")
     L.append("")
 
     # Key numbers per hypothesis.

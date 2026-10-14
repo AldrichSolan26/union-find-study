@@ -27,7 +27,14 @@ build/uf_bench_nosink: bench/bench.cpp $(HEADERS) | build
 test: build/uf_tests
 	./build/uf_tests
 
+# Side experiments behind H5, H8 and H9 (see experiments/README.md).
+EXPERIMENTS = build/replay_vs_fresh build/throttling build/rank_branch
+experiments: $(EXPERIMENTS)
+
+build/%: experiments/%.cpp experiments/common.hpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -o $@
+
 clean:
 	rm -rf build
 
-.PHONY: all test clean
+.PHONY: all test experiments clean

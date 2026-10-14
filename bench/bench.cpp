@@ -26,6 +26,10 @@
 // --slow-max-exp caps ONLY naive+none, which is O(n) per find on chain-like
 // inputs; above that size its rows are simply omitted.
 
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS   // the MSVC runtime deprecates std::fopen; it is fine here
+#endif
+
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -55,6 +59,7 @@ namespace {
 
 struct Config {
     std::vector<std::string> workloads = bench::workload_names();
+    std::vector<std::string> variants;   // empty = all 12
     int min_exp = 10;
     int max_exp = 20;
     int slow_max_exp = 15;
@@ -204,6 +209,7 @@ Config parse_args(int argc, char** argv) {
         else if (arg == "--min-time-ms") c.min_time_ms = parse_int(next(), "--min-time-ms");
         else if (arg == "--cpu") c.cpu = parse_int(next(), "--cpu");
         else if (arg == "--no-count") c.count = false;
+        else if (arg == "--variants") c.variants = split(next());
         else if (arg == "--replay-same-sequence") c.replay = true;
         else if (arg == "--allow-power-throttling") c.allow_throttling = true;
         else if (arg == "--out") c.out = next();
@@ -396,6 +402,9 @@ int main(int argc, char** argv) {
                     using Counted = uf::UnionFind<typename UF::link_type,
                                                   typename UF::find_type, uf::CountStats>;
                     if (uf::is_unprotected<UF> && e > cfg.slow_max_exp) return;
+                    if (!cfg.variants.empty() &&
+                        std::find(cfg.variants.begin(), cfg.variants.end(), UF::variant_name()) == cfg.variants.end())
+                        return;
 
                     // 1. Counting run (also fixes the expected checksum).
                     std::uint64_t checksum = 0, ops = 0;
