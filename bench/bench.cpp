@@ -101,7 +101,7 @@ int parse_int(const char* s, const char* flag) {
 // Windows 11 "power throttling" (EcoQoS) clocks down a busy process that has
 // no foreground window. On the study machine it kicked in after a few seconds
 // of sustained load and made every later measurement ~2x slower, so variant
-// ORDER changed the results (see results/FINDINGS.md, "validity checks").
+// ORDER changed the results (see the report, section (b), H9).
 // Opting out keeps the core at its normal clocks for the whole run.
 bool disable_power_throttling() {
 #if defined(_WIN32) && defined(PROCESS_POWER_THROTTLING_CURRENT_VERSION)
@@ -281,8 +281,8 @@ using Clock = std::chrono::steady_clock;
 
 // The sequences the timed runs use. Replaying ONE short sequence rep after rep
 // lets the branch predictor memorise its outcomes: at n = 2^10 that made
-// rank+full look 4.7x faster than on an unseen sequence of the same kind (see
-// results/FINDINGS.md, "validity checks"). So while one sequence is short,
+// rank+full look 3.5x faster than on an unseen sequence of the same kind (see
+// the report, section (b), H8). So while one sequence is short,
 // every rep gets its own independently generated sequence, with a separate
 // one for the warm-up, until the pool covers kPoolOps operations. Above that
 // the predictor cannot hold the history, and the canonical sequence is reused.

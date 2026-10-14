@@ -8,9 +8,10 @@ n = 2^10 to 2^24.
 The study asks where the textbook analysis (near-constant amortised cost,
 O(m α(n))) agrees with measured run time, where it doesn't, and why.
 
-- **Results and verdicts:** [results/FINDINGS.md](results/FINDINGS.md)
-- **Pre-registered hypotheses:** [docs/hypotheses.md](docs/hypotheses.md)
+- **Report** (hypotheses, method, results, analysis, AI use): [report/PA1_Report_Union_Find.docx](report/PA1_Report_Union_Find.docx)
 - **Generated tables:** [results/summary.md](results/summary.md) · **figures:** [results/figures/](results/figures/)
+- **Pre-registration:** hypotheses H1–H7 were committed before the full run, in
+  commit `5f9148f` (`docs/hypotheses.md` in that commit).
 
 **In one paragraph:**
 - The textbook analysis predicts the *work* exactly: path lengths match the
@@ -101,9 +102,8 @@ tests/test_union_find.cpp  correctness tests (see below)
 scripts/run_study.py       runs the whole study, records the machine
 scripts/plot.py            CSV -> figures + summary.md
 experiments/               standalone side experiments (H5, H8, H9) and their outputs
-docs/hypotheses.md         predictions, committed before the full run
-docs/ai-log.md             log of AI use (feeds the report)
-results/                   FINDINGS.md, summary.md, figures/, the CSVs, machine.json
+report/                    the written report (Word)
+results/                   summary.md, figures/, the CSVs, machine.json
 results/raw/               one CSV per (workload, seed) chunk
 results/logs/              logs of every study run
 results/discarded/         chunks that were re-measured, and why

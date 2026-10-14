@@ -14,7 +14,7 @@ namespace bench {
 // Every find() result is folded into this sink. Without it, FindNone has no
 // side effects, its result is unused, and the optimiser may delete the whole
 // find loop. Building with -DUF_BENCH_NO_SINK reproduces that failure mode
-// (see results/FINDINGS.md, "validity checks").
+// (see the report, section (b), H7).
 // The sink is NOT part of the checksum: different linking policies pick
 // different roots, and the checksum must be equal across variants.
 inline volatile std::uint64_t g_sink = 0;
