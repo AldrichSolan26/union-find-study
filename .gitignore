@@ -3,3 +3,5 @@ __pycache__/
 *.o
 *.exe
 .DS_Store
+# written by scripts/run_study.py while a study runs; results.csv holds the merged data
+results/raw/

@@ -62,8 +62,9 @@ python scripts/plot.py results               # figures + results/summary.md
 ```
 
 `run_study.py` writes `results/machine.json` (CPU, caches, OS, compiler,
-settings), one CSV per (workload, seed) in `results/raw/`, the merged
-`results/results.csv`, `results/canary.csv` and `results/validity.csv`. Use
+settings), one CSV per (workload, seed) in `results/raw/` (working files,
+not committed), the merged `results/results.csv`, `results/canary.csv` and
+`results/validity.csv`. Use
 `--resume` to continue an interrupted run (`--no-validity` skips the
 validity experiments). `--cpu N` chooses the core to pin to (default 4). On a
 hybrid Intel CPU, pick a performance core: `uf_bench --cpu N --build-info`
@@ -103,11 +104,14 @@ scripts/run_study.py       runs the whole study, records the machine
 scripts/plot.py            CSV -> figures + summary.md
 experiments/               standalone side experiments (H5, H8, H9) and their outputs
 report/                    the written report (Word)
-results/                   summary.md, figures/, the CSVs, machine.json
-results/raw/               one CSV per (workload, seed) chunk
-results/logs/              logs of every study run
-results/discarded/         chunks that were re-measured, and why
+results/                   the final data: results.csv, validity.csv, canary.csv,
+                           machine.json, summary.md and figures/
 ```
+
+Data that was measured and then re-measured (after a laptop sleep, a noisy
+first session, and one transient slowdown), the per-chunk CSVs and the run
+logs are not in the current tree. They are in the git history, at commit
+`0d9841c` (`results/discarded/` explains each case).
 
 Built and tested with g++ 16.2 (MSYS2), clang 23 (both MSVC and MinGW
 targets), make, and CMake 4.4 with the MinGW Makefiles generator. The clang
