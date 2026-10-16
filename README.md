@@ -1,4 +1,3 @@
-Video Link: https://youtu.be/SqfRJ7w-RLw 
 # Union-Find: Empirical Study (PA1, Track A)
 
 A C++17 disjoint-set (Union-Find) implementation with interchangeable
@@ -9,7 +8,8 @@ n = 2^10 to 2^24.
 The study asks where the textbook analysis (near-constant amortised cost,
 O(m α(n))) agrees with measured run time, where it doesn't, and why.
 
-- **Report** (hypotheses, method, results, analysis, AI use): [report/PA1_Report_Union_Find.docx](report/PA1_Report_Union_Find.docx)
+- **Report** (hypotheses, method, results, analysis, AI use): [report/14682330_HoangHungNguyen_Report_UnionFind.pdf](report/14682330_HoangHungNguyen_Report_UnionFind.pdf) (Word source alongside)
+- **Video walkthrough:** https://youtu.be/SqfRJ7w-RLw
 - **Generated tables:** [results/summary.md](results/summary.md) · **figures:** [results/figures/](results/figures/)
 - **Pre-registration:** hypotheses H1–H7 were committed before the full run, in
   commit `5f9148f` (`docs/hypotheses.md` in that commit).
@@ -104,7 +104,7 @@ tests/test_union_find.cpp  correctness tests (see below)
 scripts/run_study.py       runs the whole study, records the machine
 scripts/plot.py            CSV -> figures + summary.md
 experiments/               standalone side experiments (H5, H8, H9) and their outputs
-report/                    the written report (Word)
+report/                    the written report (PDF, and its Word source)
 results/                   the final data: results.csv, validity.csv, canary.csv,
                            machine.json, summary.md and figures/
 ```
